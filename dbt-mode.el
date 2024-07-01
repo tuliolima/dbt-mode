@@ -39,23 +39,38 @@
 
 (defvar-local dbt-model-name nil)
 
-(defun dbt-mode-run ()
-  (interactive)
-  (let ((buffer-name (buffer-name)))
-    (string-match "\\(.*\\).sql" buffer-name)
-    (let ((model-name (match-string 1 buffer-name)))
-      (message (concat "model: " model-name))
-      (with-current-buffer dbt-mode-output-buffer
-        (erase-buffer)
-        (display-buffer dbt-mode-output-buffer)
-        (cd dbt-mode-project-root)
-        (shell-command (concat "dbt run -s " model-name " &")
-                       dbt-mode-output-buffer
-                       dbt-mode-output-buffer)))))
+(defun dbt-mode-execute-command (command)
+  (with-current-buffer dbt-mode-output-buffer
+    (erase-buffer)
+    (cd dbt-mode-project-root)
+    (display-buffer dbt-mode-output-buffer)
+    (cd dbt-mode-project-root)
+    (message (concat "Running command: " command))
+    (shell-command (concat command " &")
+                   dbt-mode-output-buffer
+                   dbt-mode-output-buffer)))
+
+(defun dbt-mode-run (&optional args)
+  (interactive
+   (transient-args 'dbt-mode-command-map))
+  (let* ((buffer-name (buffer-name))
+         (_ (string-match "\\(.*\\).sql" buffer-name))
+         (model-name (match-string 1 buffer-name))
+         (command (concat "dbt run -s " model-name " " args)))
+    (dbt-mode-execute-command command)))
+
+(transient-define-prefix dbt-mode-command-map ()
+  "A map for dbt commands and arguments."
+  ["Arguments"
+   [("f" "full-refresh" "--full-refresh")]]
+  ["dbt commands"
+   [("r" "Run" dbt-mode-run)
+    ("a" "Print Arguments" print-args)]])
 
 (defvar dbt-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-c") 'dbt-mode-run)
+    (define-key map (kbd "C-d") 'dbt-mode-command-map)
     map))
 
 (define-minor-mode dbt-mode
