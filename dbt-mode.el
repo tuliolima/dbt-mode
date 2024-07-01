@@ -26,9 +26,7 @@
   (if-let ((dbt-project-root (locate-dominating-file default-directory "dbt_project.yml")))
       (progn
         (message (concat "dbt project root: " dbt-project-root))
-        (setq dbt-mode-project-root dbt-project-root)
-        ;change the working directory to the project root
-        (cd dbt-project-root))
+        (setq dbt-mode-project-root dbt-project-root))
     (error "Not in a dbt project.")))
 
 (defun setup-environment ()
