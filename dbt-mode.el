@@ -50,7 +50,7 @@
                    dbt-mode-output-buffer
                    dbt-mode-output-buffer)))
 
-(defun dbt-mode-run (&optional args)
+(defun dbt-mode--run (&optional args)
   (interactive
    (transient-args 'dbt-mode-command-map))
   (let* ((buffer-name (buffer-name))
@@ -59,17 +59,20 @@
          (command (concat "dbt run -s " model-name " " args)))
     (dbt-mode-execute-command command)))
 
-(transient-define-prefix dbt-mode-command-map ()
-  "A map for dbt commands and arguments."
+(transient-define-prefix dbt-mode-run ()
+  "A map for dbt run arguments."
   ["Arguments"
    [("f" "full-refresh" "--full-refresh")]]
+  ["dbt run"
+   [("r" "Run" dbt-mode--run)]])
+
+(transient-define-prefix dbt-mode-command-map ()
+  "A map for dbt commands."
   ["dbt commands"
-   [("r" "Run" dbt-mode-run)
-    ("a" "Print Arguments" print-args)]])
+   [("r" "Run" dbt-mode-run)]])
 
 (defvar dbt-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-c") 'dbt-mode-run)
     (define-key map (kbd "C-d") 'dbt-mode-command-map)
     map))
 
