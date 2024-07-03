@@ -80,11 +80,16 @@
   ["dbt test"
    [("t" "Test" dbt-mode--test)]])
 
+(defun dbt-mode-clean ()
+  (interactive)
+  (dbt-mode-execute-command "dbt clean"))
+
 (transient-define-prefix dbt-mode-command-map ()
   "A map for dbt commands."
   ["dbt commands"
    [("r" "Run" dbt-mode-run)
-    ("t" "Test" dbt-mode-test)]])
+    ("t" "Test" dbt-mode-test)
+    ("k" "Clean" dbt-mode-clean)]])
 
 (defvar dbt-mode-map
   (let ((map (make-sparse-keymap)))
