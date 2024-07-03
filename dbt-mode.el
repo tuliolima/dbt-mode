@@ -52,11 +52,20 @@
 
 (defun dbt-mode--run (&optional args)
   (interactive
-   (transient-args 'dbt-mode-command-map))
+   (transient-args 'dbt-mode-run))
   (let* ((buffer-name (buffer-name))
          (_ (string-match "\\(.*\\).sql" buffer-name))
          (model-name (match-string 1 buffer-name))
          (command (concat "dbt run -s " model-name " " args)))
+    (dbt-mode-execute-command command)))
+
+(defun dbt-mode--test (&optional args)
+  (interactive
+   (transient-args 'dbt-mode-test))
+  (let* ((buffer-name (buffer-name))
+         (_ (string-match "\\(.*\\).sql" buffer-name))
+         (model-name (match-string 1 buffer-name))
+         (command (concat "dbt test -s " model-name " " args)))
     (dbt-mode-execute-command command)))
 
 (transient-define-prefix dbt-mode-run ()
@@ -66,10 +75,16 @@
   ["dbt run"
    [("r" "Run" dbt-mode--run)]])
 
+(transient-define-prefix dbt-mode-test ()
+  "A map for dbt test arguments."
+  ["dbt test"
+   [("t" "Test" dbt-mode--test)]])
+
 (transient-define-prefix dbt-mode-command-map ()
   "A map for dbt commands."
   ["dbt commands"
-   [("r" "Run" dbt-mode-run)]])
+   [("r" "Run" dbt-mode-run)
+    ("t" "Test" dbt-mode-test)]])
 
 (defvar dbt-mode-map
   (let ((map (make-sparse-keymap)))
