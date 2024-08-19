@@ -110,6 +110,22 @@
          (command (concat "dbt show -s " model-name " " args)))
     (dbt-mode-execute-command command)))
 
+(defun dbt-mode--deps (&optional args)
+  "Install dbt dependencies."
+  (interactive
+   (list (transient-args 'dbt-mode-deps)))
+  (let ((command (concat "dbt deps " args)))
+    (message (concat " " args))
+    (dbt-mode-execute-command command)))
+
+(transient-define-prefix dbt-mode-deps ()
+  "A map for dbt deps arguments."
+  ["Arguments"
+   [("l" "lock" "--lock")
+    ("u" "upgrade" "--upgrade")]]
+  ["dbt deps"
+   [("d" "Deps" dbt-mode--deps)]])
+
 (transient-define-prefix dbt-mode-run ()
   "A map for dbt run arguments."
   ["Arguments"
@@ -147,9 +163,13 @@
 (transient-define-prefix dbt-mode-command-map ()
   "A map for dbt commands."
   ["dbt commands"
-   [("r" "Run" dbt-mode-run)
-    ("t" "Test" dbt-mode-test)
-    ("k" "Clean" dbt-mode-clean)]])
+   [("c" "Compile" dbt-mode-compile)
+    ("D" "Deps" dbt-mode-deps)
+    ("k" "Clean" dbt-mode-clean)
+    ("r" "Run" dbt-mode-run)
+    ("s" "Snapshot" dbt-mode-snapshot)
+    ("S" "Show" dbt-mode-show)
+    ("t" "Test" dbt-mode-test)]])
 
 (defvar dbt-mode-map
   (let ((map (make-sparse-keymap)))
