@@ -80,6 +80,16 @@
          (command (concat "dbt test -s " model-name " " args)))
     (dbt-mode-execute-command command)))
 
+(defun dbt-mode--compile (&optional args)
+  "Compile the dbt model in the current buffer."
+  (interactive
+   (transient-args 'dbt-mode-compile))
+  (let* ((buffer-name (buffer-name))
+         (_ (string-match "\\(.*\\).sql" buffer-name))
+         (model-name (match-string 1 buffer-name))
+         (command (concat "dbt compile -s " model-name " " args)))
+    (dbt-mode-execute-command command)))
+
 (transient-define-prefix dbt-mode-run ()
   "A map for dbt run arguments."
   ["Arguments"
@@ -91,6 +101,11 @@
   "A map for dbt test arguments."
   ["dbt test"
    [("t" "Test" dbt-mode--test)]])
+
+(transient-define-prefix dbt-mode-compile ()
+  "A map for dbt compile arguments."
+  ["dbt compile"
+   [("c" "Compile" dbt-mode--compile)]])
 
 (defun dbt-mode-clean ()
   "Clean the dbt project."
