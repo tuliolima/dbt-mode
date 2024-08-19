@@ -1,12 +1,18 @@
+;;; dbt-mode.el --- Minor mode for running dbt commands -*- lexical-binding: t; -*-
+
+;;; Commentary:
+
 (require 'pyvenv)
 
+;;; Code:
+
 (defcustom dbt-mode-python-virtual-env nil
-  "Virtual environment to use for dbt commands"
+  "Virtual environment to use for dbt commands."
   :type 'directory
   :group 'dbt-mode)
 
 (defcustom dbt-mode-project-root nil
-  "Root of the dbt project"
+  "Root of the dbt project."
   :type 'directory
   :group 'dbt-mode)
 
@@ -16,6 +22,7 @@
   :group 'dbt-mode)
 
 (defun dbt-mode-load-virtual-env ()
+  "Load the Python virtual environment for dbt commands."
   (interactive)
   (unless dbt-mode-python-virtual-env
     (let ((virtual-env-path (read-directory-name "Path for Python virtual environment: ")))
@@ -23,13 +30,15 @@
   (pyvenv-activate dbt-mode-python-virtual-env))
 
 (defun dbt-mode-find-project-root ()
+  "Find the root of the dbt project."
   (if-let ((dbt-project-root (locate-dominating-file default-directory "dbt_project.yml")))
       (progn
         (message (concat "dbt project root: " dbt-project-root))
         (setq dbt-mode-project-root dbt-project-root))
-    (error "Not in a dbt project.")))
+    (error "Not in a dbt project")))
 
 (defun setup-environment ()
+  "Setup the environment for dbt-mode."
   (when dbt-mode
     (message "--------------")
     (dbt-mode-find-project-root)
@@ -40,6 +49,7 @@
 (defvar-local dbt-model-name nil)
 
 (defun dbt-mode-execute-command (command)
+  "Execute a dbt COMMAND in the dbt project root."
   (with-current-buffer dbt-mode-output-buffer
     (erase-buffer)
     (cd dbt-mode-project-root)
@@ -51,6 +61,7 @@
                    dbt-mode-output-buffer)))
 
 (defun dbt-mode--run (&optional args)
+  "Run the dbt model in the current buffer."
   (interactive
    (transient-args 'dbt-mode-run))
   (let* ((buffer-name (buffer-name))
@@ -60,6 +71,7 @@
     (dbt-mode-execute-command command)))
 
 (defun dbt-mode--test (&optional args)
+  "Test the dbt model in the current buffer."
   (interactive
    (transient-args 'dbt-mode-test))
   (let* ((buffer-name (buffer-name))
@@ -81,6 +93,7 @@
    [("t" "Test" dbt-mode--test)]])
 
 (defun dbt-mode-clean ()
+  "Clean the dbt project."
   (interactive)
   (dbt-mode-execute-command "dbt clean"))
 
@@ -97,9 +110,10 @@
     map))
 
 (define-minor-mode dbt-mode
-  "Minor mode for running dbt commands"
+  "Minor mode for running dbt commands."
   :lighter " dbt"
   :keymap dbt-mode-map
   :group 'dbt-mode)
 
 (provide 'dbt-mode)
+;;; dbt-mode.el ends here
