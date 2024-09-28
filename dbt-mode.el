@@ -129,7 +129,8 @@
 (transient-define-prefix dbt-mode-run ()
   "A map for dbt run arguments."
   ["Arguments"
-   [("f" "full-refresh" "--full-refresh")]]
+   [("-f" "full-refresh" "--full-refresh")
+    ("-v" "vars" "--vars=")]]
   ["dbt run"
    [("r" "Run" dbt-mode--run)]])
 
