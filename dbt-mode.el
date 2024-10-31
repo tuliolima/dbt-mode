@@ -118,21 +118,29 @@
     (message (concat " " args))
     (dbt-mode-execute-command command)))
 
+(defun dbt-mode-create-arguments (args)
+  "Create a transient arguments structure with ARGS."
+  (let ((arguments-map
+         '(("lock" . ("l" "lock" "--lock"))
+           ("upgrade" . ("u" "upgrade" "--upgrade"))
+           ("full-refresh" . ("-f" "full-refresh" "--full-refresh"))
+           ("vars" . ("-v" "vars" "--vars="))
+           ("limit" . ("-l" "limit" "--limit")))))
+    (mapcar (lambda (arg) (cdr (assoc arg arguments-map))) args)))
+
 (transient-define-prefix dbt-mode-deps ()
   "A map for dbt deps arguments."
   ["Arguments"
-   [("l" "lock" "--lock")
-    ("u" "upgrade" "--upgrade")]]
-  ["dbt deps"
-   [("d" "Deps" dbt-mode--deps)]])
+   (dbt-mode-create-arguments '("lock" "upgrade"))
+   ["dbt deps"
+    [("d" "Deps" dbt-mode--deps)]]])
 
 (transient-define-prefix dbt-mode-run ()
   "A map for dbt run arguments."
   ["Arguments"
-   [("-f" "full-refresh" "--full-refresh")
-    ("-v" "vars" "--vars=")]]
-  ["dbt run"
-   [("r" "Run" dbt-mode--run)]])
+   (dbt-mode-create-arguments '("full-refresh" "vars"))
+   ["dbt run"
+    [("r" "Run" dbt-mode--run)]]])
 
 (transient-define-prefix dbt-mode-test ()
   "A map for dbt test arguments."
@@ -152,9 +160,9 @@
 (transient-define-prefix dbt-mode-show ()
   "A map for dbt show arguments."
   ["Arguments"
-   [("-l" "limit" "--limit")]]
-  ["dbt show"
-   [("s" "Show" dbt-mode--show)]])
+   (dbt-mode-create-arguments '("limit"))
+   ["dbt show"
+    [("s" "Show" dbt-mode--show)]]])
 
 (defun dbt-mode-clean ()
   "Clean the dbt project."
