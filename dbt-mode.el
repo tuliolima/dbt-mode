@@ -31,11 +31,13 @@
 
 (defun dbt-mode-find-project-root ()
   "Find the root of the dbt project."
-  (if-let ((dbt-project-root (locate-dominating-file default-directory "dbt_project.yml")))
-      (progn
-        (message (concat "dbt project root: " dbt-project-root))
-        (setq dbt-mode-project-root dbt-project-root))
-    (error "Not in a dbt project")))
+  (unless dbt-mode-project-root
+    (if-let ((dbt-project-root (locate-dominating-file default-directory "dbt_project.yml")))
+        (progn
+          (message (concat "dbt project root: " dbt-project-root))
+          (setq dbt-mode-project-root dbt-project-root))
+      (let ((project-root-path (read-directory-name "Path for dbt project root: ")))
+        (setq dbt-mode-project-root project-root-path)))))
 
 (defun setup-environment ()
   "Setup the environment for dbt-mode."
