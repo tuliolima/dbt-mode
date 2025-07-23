@@ -25,8 +25,21 @@
   "Load the Python virtual environment for dbt commands."
   (interactive)
   (unless dbt-mode-python-virtual-env
-    (let ((virtual-env-path (read-directory-name "Path for Python virtual environment: ")))
-      (setq dbt-mode-python-virtual-env virtual-env-path)))
+    (let ((auto-detected-venv (or
+                               (when (file-exists-p (expand-file-name "venv/pyvenv.cfg" default-directory))
+                                 (expand-file-name "venv/" default-directory))
+                               (when (file-exists-p (expand-file-name ".venv/pyvenv.cfg" default-directory))
+                                 (expand-file-name ".venv/" default-directory))
+                               (when (file-exists-p (expand-file-name "env/pyvenv.cfg" default-directory))
+                                 (expand-file-name "env/" default-directory))
+                               (when (file-exists-p (expand-file-name ".env/pyvenv.cfg" default-directory))
+                                 (expand-file-name ".env/" default-directory)))))
+      (if auto-detected-venv
+          (progn
+            (message (concat "Python virtual environment: " auto-detected-venv))
+            (setq dbt-mode-python-virtual-env auto-detected-venv))
+        (let ((virtual-env-path (read-directory-name "Path for Python virtual environment: ")))
+          (setq dbt-mode-python-virtual-env virtual-env-path)))))
   (pyvenv-activate dbt-mode-python-virtual-env))
 
 (defun dbt-mode-find-project-root ()
