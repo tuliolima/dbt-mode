@@ -25,19 +25,30 @@
   "Load the Python virtual environment for dbt commands."
   (interactive)
   (unless dbt-mode-python-virtual-env
-    (let ((virtual-env-path (read-directory-name "Path for Python virtual environment: ")))
-      (setq dbt-mode-python-virtual-env virtual-env-path)))
+    (let ((auto-detected-venv (or
+                               (when (file-exists-p (expand-file-name "venv/pyvenv.cfg" default-directory))
+                                 (expand-file-name "venv/" default-directory))
+                               (when (file-exists-p (expand-file-name ".venv/pyvenv.cfg" default-directory))
+                                 (expand-file-name ".venv/" default-directory))
+                               (when (file-exists-p (expand-file-name "env/pyvenv.cfg" default-directory))
+                                 (expand-file-name "env/" default-directory))
+                               (when (file-exists-p (expand-file-name ".env/pyvenv.cfg" default-directory))
+                                 (expand-file-name ".env/" default-directory)))))
+      (if auto-detected-venv
+          (progn
+            (message (concat "Python virtual environment: " auto-detected-venv))
+            (setq dbt-mode-python-virtual-env auto-detected-venv))
+        (let ((virtual-env-path (read-directory-name "Path for Python virtual environment: ")))
+          (setq dbt-mode-python-virtual-env virtual-env-path)))))
   (pyvenv-activate dbt-mode-python-virtual-env))
 
 (defun dbt-mode-find-project-root ()
   "Find the root of the dbt project."
-  (unless dbt-mode-project-root
-    (if-let ((dbt-project-root (locate-dominating-file default-directory "dbt_project.yml")))
-        (progn
-          (message (concat "dbt project root: " dbt-project-root))
-          (setq dbt-mode-project-root dbt-project-root))
-      (let ((project-root-path (read-directory-name "Path for dbt project root: ")))
-        (setq dbt-mode-project-root project-root-path)))))
+  (if-let ((dbt-project-root (locate-dominating-file default-directory "dbt_project.yml")))
+      (progn
+        (message (concat "dbt project root: " dbt-project-root))
+        (setq dbt-mode-project-root dbt-project-root))
+    (error "Not in a dbt project")))
 
 (defun setup-environment ()
   "Setup the environment for dbt-mode."
